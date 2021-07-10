@@ -1,14 +1,14 @@
-// require packages used in the project
 const express = require('express')
 const mongoose = require('mongoose') // 載入 mongoose
-
-
-// ./代表說在app.js同一層裡面找restaurant.json檔案
-const restaurantsList = require('./restaurant.json')
-
 // require express-handlebars here
 //沒有給 ./ ，代表去node_modules裡面去找
 const exphbs = require('express-handlebars')
+
+const bodyParser = require('body-parser') //body-Parser
+
+const Restaurant = require('./models/restaurant')
+// const restaurant = require('./models/restaurant')
+
 
 const port = 3000
 const app = express()
@@ -27,16 +27,59 @@ db.once('open', () => {
   console.log('mongodb connected!')
 })
 
+// 用 app.use 規定每一筆請求都需要透過 body-parser 進行前置處理
+app.use(bodyParser.urlencoded({ extended: true }))
 
-
-// setting template engine
-app.engine('handlebars', exphbs({ defaultLayout: 'main' }))
-app.set('view engine', 'handlebars')
+// setting template engine, extname: '.hbs'，是指定副檔名為 .hbs，有了這行以後，我們才能把預設的長檔名改寫成短檔名
+app.engine('hbs', exphbs({ defaultLayout: 'main', extname: '.hbs'}))
+app.set('view engine', 'hbs')
 
 // routes setting
 app.get('/', (req, res) => {
-  res.render('index', { restaurants: restaurantsList.results})
+
+  Restaurant.find()
+    .lean()
+    .then(restaurants => res.render('index', {restaurants}))
+    .catch(error => console.log(error))
 })
+//Create
+app.get('/restaurants/new',(req,res) =>{
+  return res.render('new')
+})
+app.post('/restaurant',(req,res) =>{
+  const name = req.body.name
+  const name_en = req.body.name_en
+  const category = req.body.category
+  const image = req.body.image
+  const location = req.body.location
+  const phone = req.body.phone
+  const google_map = req.body.google_map
+  const rating = req.body.rating
+  const description = req.body.description
+  return Restaurant.create({ name, name_en, category, image, location, phone, google_map, rating, description })     // 存入資料庫
+    .then(() => res.redirect('/')) // 新增完成後導回首頁
+    .catch(error => console.log(error))
+
+})
+//Read
+//params, 用:代表變數
+
+app.get('/restaurant/:id',(req, res) => {
+  const id = req.params.id
+
+  return Restaurant.findById(id)
+    .lean()
+    .then((restaurant) => res.render('show', { restaurant }))
+    .catch(error => console.log(error))
+  //箭頭函式
+  // const restaurant = restaurantsList.results.filter(restaurant => restaurant.id === Number(req.params.restaurant_id))
+  // // const restaurant = restaurantsList.results.filter(function(restaurant){
+  // //   //restaurant.id是數值，req.params.restaurant_id是字串
+  // //   return restaurant.id === Number(req.params.restaurant_id)
+  // // })
+  // res.render('show', { restaurant: restaurant[0] })  //restauran是陣列，因此restaurant[0]
+})
+
 
 app.get('/search', (req, res) => {
   //箭頭函式
@@ -51,23 +94,12 @@ app.get('/search', (req, res) => {
   res.render('index', { restaurants: restaurants, keyword: req.query.keyword})
 })
 
-//params, 用:代表變數
-app.get('/restaurants/:restaurant_id', (req, res) => {
 
-  //箭頭函式
-  const restaurant = restaurantsList.results.filter(restaurant => restaurant.id === Number(req.params.restaurant_id))
-
-  // const restaurant = restaurantsList.results.filter(function(restaurant){
-  //   //restaurant.id是數值，req.params.restaurant_id是字串
-  //   return restaurant.id === Number(req.params.restaurant_id)
-  // })
-  res.render('show', { restaurant: restaurant[0] })  //restauran是陣列，因此restaurant[0]
-})
 
 // setting static files
 app.use(express.static('public'))
 
 // start and listen on the Express server
 app.listen(port, () => {
-  console.log(`Express is listening on localhost:${port}`)
+  console.log(`Express is listening on http://localhost:${port}`)
 })
