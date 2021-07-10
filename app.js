@@ -63,7 +63,6 @@ app.post('/restaurant',(req,res) =>{
 })
 //Read
 //params, 用:代表變數
-
 app.get('/restaurant/:id',(req, res) => {
   const id = req.params.id
 
@@ -71,13 +70,29 @@ app.get('/restaurant/:id',(req, res) => {
     .lean()
     .then((restaurant) => res.render('show', { restaurant }))
     .catch(error => console.log(error))
-  //箭頭函式
-  // const restaurant = restaurantsList.results.filter(restaurant => restaurant.id === Number(req.params.restaurant_id))
-  // // const restaurant = restaurantsList.results.filter(function(restaurant){
-  // //   //restaurant.id是數值，req.params.restaurant_id是字串
-  // //   return restaurant.id === Number(req.params.restaurant_id)
-  // // })
-  // res.render('show', { restaurant: restaurant[0] })  //restauran是陣列，因此restaurant[0]
+})
+
+app.post('/restaurant/:id/edit',(req,res) => {
+  const id = req.params.id
+  const name = req.body.name
+  return Restaurant.findById(id)
+    .then(restaurant =>{
+      restaurant.name = name
+      return restaurant.save()
+    })
+    .then(() => res.redirect(`/todos/${id}`))
+    .catch(error => console.log(error))
+})
+
+
+//Update
+app.get('/restaurant/:id/edit', (req, res) => {
+  const id = req.params.id
+
+  return Restaurant.findById(id)
+    .lean()
+    .then((restaurant) => res.render('edit', { restaurant }))
+    .catch(error => console.log(error))
 })
 
 
