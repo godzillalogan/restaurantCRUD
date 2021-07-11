@@ -35,6 +35,9 @@
             </p>
             <div class="container d-flex justify-content-end align-items-center p-0 mb-3">
                 <a class="navbar-brand" href="/restaurant/{{restaurant._id}}/edit">Edit</a>
+                <form action="/restaurant/{{restaurant._id}}/delete" method="POST" style="display: inline;">
+                    <button type="submit">delete</button>
+                </form>
             </div>
             <img class="rounded mx-auto d-block mb-4 w-100"
                 src="{{restaurant.image}}" alt="{{restaurant.name}}"
