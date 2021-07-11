@@ -1,7 +1,7 @@
 
 # 餐廳首頁
 
-![餐廳首頁](/.README/restaurantIndex.PNG)
+![餐廳首頁](/.README/RestaurantIndex.PNG)
 
 * 使用者可以在首頁看到所有餐廳與它們的簡單資料：
 
@@ -17,7 +17,7 @@
 
 # 餐廳的詳細資料
 
-![餐廳首頁](/.README/showIndex.PNG)
+![餐廳首頁](/.README/ShowIndex.PNG)
 
 * 使用者可以再點進去看餐廳的詳細資訊：
 
